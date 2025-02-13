@@ -1,4 +1,4 @@
-// pages/index.js
+// pages/index.jsx
 import React from "react";
 import Link from "next/link";
 import Layout from "../components/Layout";
@@ -11,8 +11,6 @@ import CardActions from "@mui/material/CardActions";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 
-// For demonstration purposes, we're using static data.
-// In a Next.js app, you could load data via getStaticProps or getServerSideProps.
 const dummyExercises = [
   {
     id: "1",
@@ -39,7 +37,20 @@ const IndexPage = () => {
         <Grid container spacing={3}>
           {dummyExercises.map((exercise) => (
             <Grid item xs={12} sm={6} md={4} key={exercise.id}>
-              <Card variant="outlined" sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
+              <Card
+                variant="outlined"
+                sx={(theme) => ({
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  backgroundColor:
+                    theme.palette.mode === "dark"
+                      ? theme.palette.grey[900]
+                      : theme.palette.grey[100],
+                  color: theme.palette.text.primary,
+                  transition: "background-color 0.3s ease, color 0.3s ease",
+                })}
+              >
                 <CardContent sx={{ flexGrow: 1 }}>
                   <Typography variant="h6" component="h2">
                     {exercise.title}

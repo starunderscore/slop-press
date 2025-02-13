@@ -1,4 +1,4 @@
-// components/TopAppBar/ThemeMenu.jsx
+// src/components/TopAppBar/ThemeMenu.jsx
 import React, { useState } from "react";
 import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
@@ -30,7 +30,9 @@ const ThemeMenu = ({ mode, toggleTheme, syncWithOS, toggleSyncWithOS }) => {
         </MenuItem>
         <MenuItem>
           <FormControlLabel
-            control={<Checkbox checked={syncWithOS} onChange={toggleSyncWithOS} />}
+            control={
+              <Checkbox checked={syncWithOS} onChange={toggleSyncWithOS} />
+            }
             label="Sync with OS"
           />
         </MenuItem>
