@@ -30,7 +30,12 @@ const IndexPage = () => {
   return (
     <Layout>
       <TopAppBar />
-      <Container maxWidth="md" sx={{ py: 4 }}>
+      <Container maxWidth="md" sx={{
+        py: 4,
+        width: "100%",
+        maxWidth: "800px !important",
+        m: "0 auto",
+      }}>
         <Typography variant="h4" component="h1" gutterBottom>
           Available Typing Exercises
         </Typography>

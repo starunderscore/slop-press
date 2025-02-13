@@ -53,7 +53,6 @@ const TypingGame = ({ rawContent = "", allowBackspace, timeLimit, language }) =>
         }
       }
     }
-    console.log("slides", slides);
   }, [userInput, slides, currentSlideIndex]);
 
   const handleKeyDown = (e) => {
@@ -98,7 +97,13 @@ const TypingGame = ({ rawContent = "", allowBackspace, timeLimit, language }) =>
       autoFocus
       tabIndex={0}
       onKeyDown={handleKeyDown}
-      sx={{ outline: "none", p: 2 }}
+      sx={{
+        outline: "none",
+        p: 2,
+        width: "100%",
+        maxWidth: "800px !important",
+        m: "0 auto",
+      }}
     >
       {slides.length === 0 ? (
         <Typography variant="body1">Loading slides...</Typography>
