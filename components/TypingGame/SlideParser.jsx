@@ -1,34 +1,33 @@
 export function parseSlides(rawContent) {
-  // Remove YAML frontmatter if present using a regex:
-  // This removes everything from the start (^) through the first occurrence of a line that only has "---"
-  rawContent = rawContent.replace(/^---[\s\S]+?---/, '').trim();
+  // Remove YAML frontmatter if present
+  rawContent = rawContent.replace(/^---[\s\S]+?---/, "").trim();
 
-  // Split the remaining content by lines starting with "## " (each slide starts with "## ")
+  // Split content into slides based on H2 headers (##)
   const slideParts = rawContent.split(/^##\s+/m).filter((part) => part.trim() !== "");
-  
+
   return slideParts.map((part) => {
     const lines = part.split("\n");
-    const header = lines.shift().trim();
+    const header = lines.shift().trim(); // The first line is always the header
     let paragraph = "";
-    let code = "";
+    let codeBlocks = [];
     let inCodeBlock = false;
-    let codeLines = [];
-    
+    let currentCodeBlock = [];
+
     lines.forEach((line) => {
       if (line.trim().startsWith("```typing")) {
         inCodeBlock = true;
+        currentCodeBlock = []; // Start a new code block
       } else if (line.trim() === "```" && inCodeBlock) {
         inCodeBlock = false;
-      } else {
-        if (inCodeBlock) {
-          codeLines.push(line);
-        } else {
-          paragraph += line + "\n";
-        }
+        codeBlocks.push(currentCodeBlock.join("\n").trim()); // Save completed code block
+        currentCodeBlock = [];
+      } else if (!inCodeBlock) { // Only add to paragraph if NOT in a code block
+        paragraph += line + "\n";
+      } else if (inCodeBlock) {
+        currentCodeBlock.push(line); // Accumulate lines within the code block
       }
     });
-    
-    code = codeLines.join("\n").trim();
-    return { header, paragraph: paragraph.trim(), code };
+
+    return { header, paragraph: paragraph.trim(), codeBlocks };
   });
 }

@@ -1,78 +1,73 @@
 // pages/index.jsx
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Layout from "../components/Layout";
 import TopAppBar from "../components/TopAppBar";
 import Container from "@mui/material/Container";
-import Grid from "@mui/material/Grid";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
-import CardActions from "@mui/material/CardActions";
-import Typography from "@mui/material/Typography";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
 import Button from "@mui/material/Button";
-
-const dummyExercises = [
-  {
-    id: "1",
-    title: "Typing Challenge 1",
-    description: "Practice your typing with this exercise.",
-    slug: "/exercise/1",
-  },
-  {
-    id: "2",
-    title: "Typing Challenge 2",
-    description: "Another challenge for your fingers.",
-    slug: "/exercise/2",
-  },
-];
+import Paper from "@mui/material/Paper";
+import axios from "axios";
 
 const IndexPage = () => {
+  const [games, setGames] = useState([]);
+
+  useEffect(() => {
+    async function fetchGames() {
+      const response = await axios.get("/api/v1/lsov/typing-game");
+      setGames(response.data);
+    }
+    fetchGames();
+  }, []);
+
+  const handleUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    await axios.post("/api/v1/lsov/typing-game/upload", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    // Refresh games list
+    const response = await axios.get("/api/v1/lsov/typing-game");
+    setGames(response.data);
+  };
+
   return (
     <Layout>
       <TopAppBar />
-      <Container maxWidth="md" sx={{
-        py: 4,
-        width: "100%",
-        maxWidth: "800px !important",
-        m: "0 auto",
-      }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          Available Typing Exercises
-        </Typography>
-        <Grid container spacing={3}>
-          {dummyExercises.map((exercise) => (
-            <Grid item xs={12} sm={6} md={4} key={exercise.id}>
-              <Card
-                variant="outlined"
-                sx={(theme) => ({
-                  height: "100%",
-                  display: "flex",
-                  flexDirection: "column",
-                  backgroundColor:
-                    theme.palette.mode === "dark"
-                      ? theme.palette.grey[900]
-                      : theme.palette.grey[100],
-                  color: theme.palette.text.primary,
-                  transition: "background-color 0.3s ease, color 0.3s ease",
-                })}
-              >
-                <CardContent sx={{ flexGrow: 1 }}>
-                  <Typography variant="h6" component="h2">
-                    {exercise.title}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {exercise.description}
-                  </Typography>
-                </CardContent>
-                <CardActions>
-                  <Button size="small" component={Link} href={exercise.slug}>
-                    Start Exercise
-                  </Button>
-                </CardActions>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
+      <Container maxWidth="md" sx={{ py: 4 }}>
+        <input type="file" onChange={handleUpload} accept=".md" />
+        <TableContainer component={Paper} sx={{ mt: 2 }}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Name</TableCell>
+                <TableCell>Completion Count</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {games.map((game) => (
+                <TableRow key={game.id}>
+                  <TableCell>
+                    <Link href={`/exercise/${game.id}`} passHref>
+                      <Button>{game.name}</Button>
+                    </Link>
+                  </TableCell>
+                  <TableCell>{game.completionCount}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
       </Container>
     </Layout>
   );

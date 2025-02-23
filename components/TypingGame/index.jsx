@@ -1,4 +1,3 @@
-// components/TypingGame/index.jsx
 import React, { useState, useEffect, useRef } from "react";
 import { parseSlides } from "./SlideParser";
 import SlideDisplay from "./SlideDisplay";
@@ -7,14 +6,10 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 
-// Helper function to remove diacritics (accents) from a string.
-const stripDiacritics = (str) => {
-  return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-};
-
 const TypingGame = ({ rawContent = "", allowBackspace, timeLimit, language }) => {
   const [slides, setSlides] = useState([]);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+  const [currentBlockIndex, setCurrentBlockIndex] = useState(0);
   const [userInput, setUserInput] = useState("");
   const [errorCount, setErrorCount] = useState(0);
   const [overallErrorCount, setOverallErrorCount] = useState(0);
@@ -25,7 +20,6 @@ const TypingGame = ({ rawContent = "", allowBackspace, timeLimit, language }) =>
     if (containerRef.current) containerRef.current.focus();
   }, []);
 
-  // Parse slides only when rawContent changes
   useEffect(() => {
     if (rawContent) {
       const parsedSlides = parseSlides(rawContent);
@@ -33,36 +27,61 @@ const TypingGame = ({ rawContent = "", allowBackspace, timeLimit, language }) =>
       setSlides(parsedSlides);
       setUserInput("");
       setErrorCount(0);
+      setCurrentBlockIndex(0);
     }
   }, [rawContent]);
 
   useEffect(() => {
     if (slides.length > 0) {
-      const currentSlide = slides[currentSlideIndex];
-      const targetText = currentSlide.code;
-      if (
-        stripDiacritics(userInput).toLowerCase() ===
-        stripDiacritics(targetText).toLowerCase()
-      ) {
-        if (currentSlideIndex < slides.length - 1) {
+      const currentSlide = slides[currentSlideIndex] || {};
+      const blocks = currentSlide.codeBlocks || [];
+      const targetText = blocks[currentBlockIndex] || "";
+  
+      if (userInput === targetText) {
+        // User has correctly typed the current block
+  
+        if (currentBlockIndex < blocks.length - 1) {
+          // Move to the next block on the SAME slide
           setTimeout(() => {
-            setCurrentSlideIndex(currentSlideIndex + 1);
-          }, 1000);
+            setCurrentBlockIndex((prevIndex) => prevIndex + 1);
+            setUserInput("");
+            setErrorCount(0); // Reset error count for the new block
+          }, 500);
         } else {
-          setCompleted(true);
+          // User has completed the LAST block on the current slide
+  
+          if (currentSlideIndex < slides.length - 1) {
+            // Move to the NEXT slide
+            setTimeout(() => {
+              setCurrentSlideIndex((prevIndex) => prevIndex + 1);
+              setCurrentBlockIndex(0); // Reset block index to start from the first block of the new slide
+              setUserInput("");
+              setErrorCount(0); // Reset error count for the new slide
+            }, 1000);
+          } else {
+            // User has completed the LAST block on the LAST slide - Exercise OVER
+            setCompleted(true);
+          }
         }
       }
     }
-  }, [userInput, slides, currentSlideIndex]);
-
+  }, [userInput, currentBlockIndex, slides, currentSlideIndex]);
+  
   const handleKeyDown = (e) => {
-    if (e.key.length !== 1) return;
-    const currentTarget = slides[currentSlideIndex]?.code || "";
+    if (e.key.length !== 1 && e.key !== "Backspace") return;
+    const currentSlide = slides[currentSlideIndex] || {};
+    const blocks = currentSlide.codeBlocks || [];
+    const currentTarget = blocks[currentBlockIndex] || "";
+
+    if (e.key === "Backspace" && allowBackspace) {
+      setUserInput((prev) => prev.slice(0, -1));
+      return;
+    }
+
     if (userInput.length >= currentTarget.length) return;
-    const expectedChar = currentTarget[userInput.length];
-    const normalizedKey = stripDiacritics(e.key).toLowerCase();
-    const normalizedExpected = stripDiacritics(expectedChar).toLowerCase();
-    if (normalizedKey === normalizedExpected) {
+    const expectedChar = currentTarget[userInput.length] || "";
+
+    if (e.key === expectedChar) {
       setUserInput((prev) => prev + e.key);
     } else {
       setErrorCount((prev) => prev + 1);
@@ -73,6 +92,7 @@ const TypingGame = ({ rawContent = "", allowBackspace, timeLimit, language }) =>
   const restartExercise = () => {
     setCompleted(false);
     setCurrentSlideIndex(0);
+    setCurrentBlockIndex(0);
     setUserInput("");
     setErrorCount(0);
     setOverallErrorCount(0);
@@ -87,9 +107,10 @@ const TypingGame = ({ rawContent = "", allowBackspace, timeLimit, language }) =>
     );
   }
 
-  // Compute the array of characters from the current slide's code.
   const currentSlide = slides[currentSlideIndex] || {};
-  const slideChars = currentSlide.code ? currentSlide.code.split("") : [];
+  const blocks = currentSlide.codeBlocks || [];
+  const slideChars = (blocks[currentBlockIndex] || "").split("");
+
 
   return (
     <Box
@@ -109,7 +130,8 @@ const TypingGame = ({ rawContent = "", allowBackspace, timeLimit, language }) =>
         <Typography variant="body1">Loading slides...</Typography>
       ) : (
         <>
-          <SlideDisplay slide={currentSlide} userInput={userInput} slideChars={slideChars} />
+          {/* ✅ Pass blocks and currentBlockIndex directly */}
+          <SlideDisplay slide={currentSlide} userInput={userInput} blocks={blocks} currentBlockIndex={currentBlockIndex} />
           <Box sx={{ mt: 2 }}>
             <Typography variant="body1">
               <strong>Typed:</strong> {userInput}
@@ -117,18 +139,6 @@ const TypingGame = ({ rawContent = "", allowBackspace, timeLimit, language }) =>
             <Typography variant="body1">
               <strong>Errors:</strong> {errorCount}
             </Typography>
-          </Box>
-          <Box sx={{ mt: 2, display: "flex", justifyContent: "space-between" }}>
-            {currentSlideIndex > 0 && (
-              <Button variant="outlined" onClick={() => setCurrentSlideIndex(currentSlideIndex - 1)}>
-                Previous
-              </Button>
-            )}
-            {currentSlideIndex < slides.length - 1 && (
-              <Button variant="outlined" onClick={() => setCurrentSlideIndex(currentSlideIndex + 1)}>
-                Next
-              </Button>
-            )}
           </Box>
         </>
       )}

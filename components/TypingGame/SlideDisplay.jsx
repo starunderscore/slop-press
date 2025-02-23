@@ -9,22 +9,30 @@ import Typography from "@mui/material/Typography";
 const stripDiacritics = (str) =>
   str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
-const SlideDisplay = ({ slide, userInput, slideChars }) => {
+// ✅ Modified to accept 'blocks' and 'currentBlockIndex'
+const SlideDisplay = ({ slide, userInput, blocks, currentBlockIndex }) => {
   const theme = useTheme();
-  const characters = slideChars || (slide.code ? slide.code.split("") : []);
+  // characters are now relevant to the *current typing block* not the whole slide
+  const characters = blocks[currentBlockIndex]?.split("") || [];
 
-  const renderTargetText = () => (
+  // ✅ Modified renderTargetText to accept block and index
+  const renderTargetText = (codeBlock, blockIndex) => (
     <Box
+      key={blockIndex} // Add key for map
       sx={{
         mt: 1,
         display: "flex",
         flexWrap: "wrap",
         whiteSpace: "pre-wrap",
+        backgroundColor: theme.palette.mode === "dark" ? "#333" : "#f5f5f5",
+        p: 2,
+        borderRadius: 1,
       }}
     >
-      {characters.map((char, index) => {
+      {codeBlock.split("").map((char, index) => {
         let letterStyle = {};
-        if (index < userInput.length) {
+        // ✅ Only apply typing feedback to the *current* block
+        if (blockIndex === currentBlockIndex && index < userInput.length) {
           const normalizedExpected = stripDiacritics(char).toLowerCase();
           const normalizedInput = stripDiacritics(userInput[index]).toLowerCase();
           letterStyle.color =
@@ -32,7 +40,7 @@ const SlideDisplay = ({ slide, userInput, slideChars }) => {
               ? theme.palette.success.main
               : theme.palette.error.main;
         }
-        if (index === userInput.length) {
+        if (blockIndex === currentBlockIndex && index === userInput.length) {
           letterStyle.textDecoration = "underline";
         }
         return (
@@ -57,9 +65,7 @@ const SlideDisplay = ({ slide, userInput, slideChars }) => {
       sx={{
         my: 2,
         backgroundColor:
-          theme.palette.mode === "dark"
-            ? theme.palette.grey[900]
-            : theme.palette.grey[100],
+          theme.palette.mode === "dark" ? theme.palette.grey[900] : theme.palette.grey[100],
         color: theme.palette.text.primary,
         transition: "background-color 0.3s ease, color 0.3s ease",
       }}
@@ -73,7 +79,10 @@ const SlideDisplay = ({ slide, userInput, slideChars }) => {
             {slide.paragraph}
           </Typography>
         )}
-        {renderTargetText()}
+        {/* ✅ Use .map to render ALL code blocks */}
+        {slide.codeBlocks && blocks.map((codeBlock, index) => (
+          <Box key={index} sx={{ mt: 2 }}>{renderTargetText(codeBlock, index)}</Box>
+        ))}
       </CardContent>
     </Card>
   );
