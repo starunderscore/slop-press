@@ -1,36 +1,88 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Slop Press - Cognitive Maintenance Tool
 
-## Getting Started
+## Project Overview
 
-First, run the development server:
+  In today's rapidly evolving world, our cognitive abilities are more critical than ever. Just like any complex system, our minds require maintenance to function optimally. Neglecting this mental upkeep can diminish our capacity to tackle intricate problems and edge-cases.  Slop Press is designed as a proactive tool for cognitive maintenance, functioning as a "gym for your mind."
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+  Instead of rote memorization or exhaustive learning, Slop Press focuses on efficient, pattern-based knowledge acquisition. It leverages AI-generated content to create engaging typing exercises that distill complex subjects into their core patterns.  By using Slop Press, you can rapidly grasp the fundamental concepts across diverse domains, from linguistics and mathematics to scientific principles and creative arts.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Key Features (Phase 2 Completion)
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+*   **Folder Organization:** Users can create and manage folders to organize their typing game content.
+*   **Markdown Typing Games:**  The core functionality revolves around creating and playing typing games based on Markdown formatted text files.
+*   **Play from Folder:** Users can easily start typing games directly from folder views, playing files within a specific folder.
+*   **Completion Tracking:**  The application tracks user progress by counting file completions, providing motivation and a sense of achievement.
+*   **User-Friendly Interface:** Built with React and Material UI, the application offers a clean, intuitive, and responsive user experience.
+*   **Homepage as Root Folder View:** The homepage provides a clear overview of the root folder structure, serving as the central starting point for navigation.
+*   **File and Folder Actions:** Users can rename and delete folders and files directly within the application.
+*   **Navigation Breadcrumbs:**  Clear breadcrumbs help users understand their current location within the folder structure.
+*   **Global Loading Indicator:** (Optional - can be implemented for smoother page transitions) Provides visual feedback during navigation.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Technologies Used
 
-## Learn More
+*   **Frontend:**
+    *   [Next.js](https://nextjs.org/): React framework for server-side rendering and routing.
+    *   [React](https://reactjs.org/): JavaScript library for building user interfaces.
+    *   [Material UI (MUI)](https://mui.com/): React UI component library for a polished and consistent design.
+    *   [axios](https://axios-http.com/):  Promise-based HTTP client for making API requests.
+*   **Backend:**
+    *   [Node.js](https://nodejs.org/): JavaScript runtime environment for the backend API.
+    *   [Express.js](https://expressjs.com/): (Implied - likely using Next.js API routes which are based on Node.js/serverless functions).
+*   **Database:**
+    *   [PostgreSQL](https://www.postgresql.org/): Relational database for storing folder and file data (inferred from Sequelize configuration).
+    *   [Sequelize](https://sequelize.org/): Node.js ORM for interacting with the PostgreSQL database.
+*   **Other:**
+    *   [Markdown](https://www.markdownguide.org/):  Markup language for creating typing game content.
 
-To learn more about Next.js, take a look at the following resources:
+## Setup and Installation (Basic)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1.  **Clone the repository:**
+    ```bash
+    git clone [repository-link-goes-here]  # Replace with your actual repository link
+    cd slop-press
+    ```
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
+3.  **Configure Environment Variables:**
+    *   Create a `.env.local` file in the project root.
+    *   Define the following environment variables (adjust with your actual database credentials):
+        ```
+        DB_NAME=your_database_name
+        DB_USER=your_database_user
+        DB_PASSWORD=your_database_password
+        DB_HOST=your_database_host (e.g., localhost or your database server address)
+        DB_DIALECT=postgres
+        DB_PORT=5432 (or your PostgreSQL port)
+        DB_SSL=false (or true if you are using SSL for your database connection)
+        ```
+4.  **Database Setup:**
+    *   Ensure you have PostgreSQL installed and running.
+    *   Create a database named as specified in your `.env.local` file (`DB_NAME`).
+    *   Sequelize should automatically create the necessary tables when you run the application for the first time (due to `db.sequelize.sync({})` in `models/index.js`).
+    *   **Note:** For production, consider using database migrations for schema management instead of `sequelize.sync({})`.
+5.  **Run the development server:**
+    ```bash
+    npm run dev
+    ```
+6.  **Access the application:** Open your browser and navigate to `http://localhost:3000`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Possible Future Enhancements (Phase 3 and Beyond)
 
-## Deploy on Vercel
+*   **User Authentication and Accounts:** Implement user registration and login to personalize the experience and potentially allow for saving user progress across devices.
+*   **Typing Game Enhancements:**
+    *   More game modes and variations (e.g., accuracy tracking, speed metrics, different text display modes).
+    *   Progressive difficulty levels.
+    *   Integration with AI content generation for dynamic typing game content.
+*   **Content Library/Marketplace:**  Allow users to share and discover typing game content created by others.
+*   **Visual Design and Styling Polish:** Further refine the visual design and styling for a more professional and branded look.
+*   **Deployment to Production:**  Deploy the application to a hosting platform for wider accessibility.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## License
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+[Choose a license - e.g., MIT License, Apache 2.0, or specify "Proprietary" if you don't want to open-source it yet]
+
+---
+
+**Developed with ❤️ by [Your Name/Organization] and powered by Gemini 🚀**
