@@ -4,10 +4,11 @@ import Layout from "../../components/Layout";
 import TopAppBar from "../../components/TopAppBar";
 import TypingGame from "../../components/TypingGame";
 import matter from "gray-matter";
+import Button from "@mui/material/Button"
 
 const ExercisePage = () => {
   const router = useRouter();
-  const { id } = router.query;
+  const { id, folderId } = router.query;
   const [gameData, setGameData] = useState(null);
 
   useEffect(() => {
@@ -59,7 +60,14 @@ const ExercisePage = () => {
     return (
       <Layout>
         <TopAppBar />
-        <TypingGame rawContent={gameData.markdown} slides={parsedSlides} allowBackspace={false} timeLimit={180} language="en" />
+        <TypingGame
+          rawContent={gameData.markdown}
+          slides={parsedSlides}
+          allowBackspace={false}
+          timeLimit={180}
+          language="en"
+          folderId={folderId}
+        />
       </Layout>
     );
   } catch (error) {

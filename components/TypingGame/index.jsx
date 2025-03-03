@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/router";
 import { parseSlides } from "./SlideParser";
 import SlideDisplay from "./SlideDisplay";
 import CompletionScreen from "./CompletionScreen";
@@ -6,7 +7,9 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 
-const TypingGame = ({ rawContent = "", allowBackspace, timeLimit, language }) => {
+const TypingGame = ({ rawContent = "", allowBackspace, timeLimit, language, folderId }) => {
+  const router = useRouter()
+  
   const [slides, setSlides] = useState([]);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [currentBlockIndex, setCurrentBlockIndex] = useState(0);
@@ -36,10 +39,10 @@ const TypingGame = ({ rawContent = "", allowBackspace, timeLimit, language }) =>
       const currentSlide = slides[currentSlideIndex] || {};
       const blocks = currentSlide.codeBlocks || [];
       const targetText = blocks[currentBlockIndex] || "";
-  
+
       if (userInput === targetText) {
         // User has correctly typed the current block
-  
+
         if (currentBlockIndex < blocks.length - 1) {
           // Move to the next block on the SAME slide
           setTimeout(() => {
@@ -49,7 +52,7 @@ const TypingGame = ({ rawContent = "", allowBackspace, timeLimit, language }) =>
           }, 500);
         } else {
           // User has completed the LAST block on the current slide
-  
+
           if (currentSlideIndex < slides.length - 1) {
             // Move to the NEXT slide
             setTimeout(() => {
@@ -66,7 +69,7 @@ const TypingGame = ({ rawContent = "", allowBackspace, timeLimit, language }) =>
       }
     }
   }, [userInput, currentBlockIndex, slides, currentSlideIndex]);
-  
+
   const handleKeyDown = (e) => {
     if (e.key.length !== 1 && e.key !== "Backspace") return;
     const currentSlide = slides[currentSlideIndex] || {};
@@ -103,6 +106,8 @@ const TypingGame = ({ rawContent = "", allowBackspace, timeLimit, language }) =>
       <CompletionScreen
         overallErrorCount={overallErrorCount}
         onRestart={restartExercise}
+        fileId={router.query.id} // ✅ Pass fileId prop here - IMPORTANT: Access from router.query
+        folderId={folderId}
       />
     );
   }
@@ -126,6 +131,17 @@ const TypingGame = ({ rawContent = "", allowBackspace, timeLimit, language }) =>
         m: "0 auto",
       }}
     >
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={() => {
+          router.push(folderId ? `/folder/${folderId}` : `/`);
+        }}
+        sx={{ mt: 3 }}
+      >
+        Back to Folder
+      </Button>
+
       {slides.length === 0 ? (
         <Typography variant="body1">Loading slides...</Typography>
       ) : (
