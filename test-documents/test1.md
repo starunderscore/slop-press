@@ -1,7 +1,4 @@
----
-title: "Typing Challenge"
-description: "Practice your typing skills with this challenge exercise."
----
+# Typing Challenge
 
 ## Pattern Recognition
 

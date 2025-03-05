@@ -1,7 +1,7 @@
 // components/folders/FolderActionsMenu.js
 import React, { useState } from 'react';
 import IconButton from '@mui/material/IconButton';
-import MoreVertIcon from '@mui/icons-material/MoreVert'; // Three-dot menu icon
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Modal from '@mui/material/Modal';
@@ -13,8 +13,17 @@ import Alert from '@mui/material/Alert';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import FolderModal from './FolderModal';
+import CreateMarkdownModal from './CreateMarkdownModal';
+import Snackbar from '@mui/material/Snackbar'; // ✅ Import Snackbar
+import MuiAlert from '@mui/material/Alert';    // ✅ Import MuiAlert for Snackbar
 
-const FolderActionsMenu = ({ folderId, folderName, setFolderName, onFolderContentsUpdated }) => { // ✅ Receive folderId, folderName, setFolderName as props
+
+const AlertSnackbar = React.forwardRef(function Alert(props, ref) { // ✅ Define AlertSnackbar
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
+
+
+const FolderActionsMenu = ({ folderId, folderName, setFolderName, onFolderContentsUpdated }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const menuOpen = Boolean(anchorEl);
 
@@ -22,52 +31,44 @@ const FolderActionsMenu = ({ folderId, folderName, setFolderName, onFolderConten
   const handleMenuOpen = (event) => {
     event.preventDefault()
     event.stopPropagation()
-
     setAnchorEl(event.currentTarget);
   };
-
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
 
   // --- New Folder Modal State and Handlers ---
-  const [openNewFolderModal, setOpenNewFolderModal] = useState(false); // ✅ State for New Folder modal
-  const [newSubfolderName, setNewSubfolderName] = useState('');         // ✅ State for new subfolder name input
-  const [newFolderErrorMessage, setNewFolderErrorMessage] = useState(''); // ✅ State for new folder error message
-
+  const [openNewFolderModal, setOpenNewFolderModal] = useState(false);
+  const [newSubfolderName, setNewSubfolderName] = useState('');
+  const [newFolderErrorMessage, setNewFolderErrorMessage] = useState('');
   const handleNewFolderModalOpen = () => {
     setOpenNewFolderModal(true);
-    setNewFolderErrorMessage(''); // Clear any previous errors
-    handleMenuClose(); // Close the actions menu when New Folder modal opens
+    setNewFolderErrorMessage('');
+    handleMenuClose();
   };
-
   const handleNewFolderModalClose = () => {
     setOpenNewFolderModal(false);
     setNewSubfolderName('');
     setNewFolderErrorMessage('');
   };
-
   const handleNewSubfolderNameChange = (event) => {
     setNewSubfolderName(event.target.value);
     setNewFolderErrorMessage('');
   };
-
   const handleCreateSubfolder = async () => {
     if (!newSubfolderName.trim()) {
       setNewFolderErrorMessage('Folder name cannot be empty.');
       return;
     }
-
     try {
-      const response = await axios.post('/api/v1/lsov/folder', { // ✅ POST to create new folder
+      const response = await axios.post('/api/v1/lsov/folder', {
         name: newSubfolderName,
-        folderId: folderId, // ✅ IMPORTANT: Pass the current folderId to create a subfolder!
+        folderId: folderId,
       });
-
       if (response.status === 201) {
         console.log('Subfolder created successfully:', response.data.data);
         handleNewFolderModalClose();
-        console.log('Calling onFolderContentsUpdated from FolderActionsMenu'); // ✅ ADD THIS LINE
+        console.log('Calling onFolderContentsUpdated from FolderActionsMenu');
         onFolderContentsUpdated();
       } else {
         console.error('Failed to create subfolder:', response);
@@ -79,43 +80,36 @@ const FolderActionsMenu = ({ folderId, folderName, setFolderName, onFolderConten
     }
   };
 
-  // --- Rename Modal State and Handlers (moved from FolderRenameSection) ---
+  // --- Rename Modal State and Handlers ---
   const [openRenameModal, setOpenRenameModal] = useState(false);
   const [editedFolderName, setEditedFolderName] = useState('');
   const [renameErrorMessage, setRenameErrorMessage] = useState('');
-
   const handleRenameModalOpen = () => {
     setEditedFolderName(folderName);
     setOpenRenameModal(true);
     setRenameErrorMessage('');
-    handleMenuClose(); // Close the actions menu when Rename modal opens
+    handleMenuClose();
   };
-
   const handleRenameModalClose = () => {
     setOpenRenameModal(false);
     setEditedFolderName('');
     setRenameErrorMessage('');
   };
-
   const handleFolderNameEditChange = (event) => {
     event.stopPropagation();
-
     setEditedFolderName(event.target.value);
     setRenameErrorMessage('');
   };
-
   const handleSaveFolderName = async () => {
     if (!editedFolderName.trim()) {
       setRenameErrorMessage('Folder name cannot be empty.');
       return;
     }
-
     try {
       const response = await axios.put(`/api/v1/lsov/folder/${folderId}`, {
         id: folderId,
         name: editedFolderName,
       });
-
       if (response.status === 200) {
         console.log('Folder renamed successfully:', response.data.data);
         setFolderName(editedFolderName);
@@ -130,27 +124,22 @@ const FolderActionsMenu = ({ folderId, folderName, setFolderName, onFolderConten
     }
   };
 
-
-  // --- Delete Modal State and Handlers (moved from FolderDeleteSection) ---
+  // --- Delete Modal State and Handlers ---
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [deleteErrorMessage, setDeleteErrorMessage] = useState('');
   const router = useRouter();
-
   const handleDeleteModalOpen = () => {
     setOpenDeleteModal(true);
     setDeleteErrorMessage('');
-    handleMenuClose(); // Close the actions menu when Delete modal opens
+    handleMenuClose();
   };
-
   const handleDeleteModalClose = () => {
     setOpenDeleteModal(false);
     setDeleteErrorMessage('');
   };
-
   const handleDeleteFolderConfirm = async () => {
     try {
       const response = await axios.delete(`/api/v1/lsov/folder/${folderId}`);
-
       if (response.status === 200) {
         console.log('Folder deleted successfully:', response.data.message);
         handleDeleteModalClose();
@@ -165,8 +154,65 @@ const FolderActionsMenu = ({ folderId, folderName, setFolderName, onFolderConten
     }
   };
 
+  // --- Create Markdown Modal State and Handlers ---
+  const [isCreateMarkdownModalOpen, setIsCreateMarkdownModalOpen] = useState(false);
+  const handleCreateMarkdownModalOpen = () => {
+    setIsCreateMarkdownModalOpen(true);
+    handleMenuClose();
+  };
+  const handleCreateMarkdownModalClose = () => {
+    setIsCreateMarkdownModalOpen(false);
+  };
 
-  const modalStyle = { /* ... modalStyle (same as before) ... */
+  // --- Snackbar state and handlers --- ✅ New Snackbar State
+  const [isSnackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success'); // default to 'success'
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbarOpen(false);
+  };
+
+
+  const handleCreateMarkdownFileFromModal = async (filename, content) => {
+    // --- API Call to create file --- ✅ API CALL HERE
+    try {
+      const response = await fetch('/api/v1/lsov/file/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ filename, content, folderId: folderId }), // ✅ Send folderId!
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('File created successfully:', data);
+        setSnackbarMessage('Markdown file created successfully!');
+        setSnackbarSeverity('success');
+        setSnackbarOpen(true);
+        handleCreateMarkdownModalClose();
+        onFolderContentsUpdated(); // Refresh folder contents to show new file
+      } else {
+        const errorData = await response.json(); // Try to parse error response
+        console.error('Failed to create markdown file:', errorData);
+        setSnackbarMessage(`Failed to create file: ${errorData.message || 'Unknown error'}`); // Use error message from backend if available
+        setSnackbarSeverity('error');
+        setSnackbarOpen(true);
+      }
+    } catch (error) {
+      console.error('Error creating markdown file:', error);
+      setSnackbarMessage('Error creating file. Please check console.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+    }
+  };
+
+
+  const modalStyle = {
     position: 'absolute',
     top: '50%',
     left: '50%',
@@ -189,7 +235,7 @@ const FolderActionsMenu = ({ folderId, folderName, setFolderName, onFolderConten
         aria-expanded={menuOpen ? 'true' : undefined}
         onClick={handleMenuOpen}
       >
-        <MoreVertIcon /> {/* Three-dot icon */}
+        <MoreVertIcon />
       </IconButton>
       <Menu
         id="folder-actions-menu"
@@ -200,13 +246,14 @@ const FolderActionsMenu = ({ folderId, folderName, setFolderName, onFolderConten
           'aria-labelledby': 'folder-actions-menu-button',
         }}
       >
-        <MenuItem onClick={handleNewFolderModalOpen}>New Folder</MenuItem> {/* ✅ New Folder menu item */}
+        <MenuItem onClick={handleNewFolderModalOpen}>New Folder</MenuItem>
+        <MenuItem onClick={handleCreateMarkdownModalOpen}>Create Markdown File</MenuItem>
         <MenuItem onClick={handleRenameModalOpen}>Rename</MenuItem>
         <MenuItem onClick={handleDeleteModalOpen} sx={{ color: 'error' }}>Delete</MenuItem>
       </Menu>
 
 
-      {/* Rename Modal (moved from FolderRenameSection) */}
+      {/* Rename Modal */}
       <Modal
         open={openRenameModal}
         onClose={handleRenameModalClose}
@@ -230,7 +277,7 @@ const FolderActionsMenu = ({ folderId, folderName, setFolderName, onFolderConten
             variant="standard"
             value={editedFolderName}
             onChange={handleFolderNameEditChange}
-            onClick={(event) => event.stopPropagation()} //{/* ✅ STOP EVENT PROPAGATION HERE */}
+            onClick={(event) => event.stopPropagation()}
             error={!!renameErrorMessage}
             helperText={renameErrorMessage}
           />
@@ -240,7 +287,7 @@ const FolderActionsMenu = ({ folderId, folderName, setFolderName, onFolderConten
           </Box>
         </Box>
       </Modal>
-      {/* Delete Confirmation Modal (moved from FolderDeleteSection) */}
+      {/* Delete Confirmation Modal */}
       <Modal
         open={openDeleteModal}
         onClose={handleDeleteModalClose}
@@ -266,7 +313,7 @@ const FolderActionsMenu = ({ folderId, folderName, setFolderName, onFolderConten
         </Box>
       </Modal>
       {/* New Folder Modal */}
-      <FolderModal // ✅ Render FolderModal for "New Folder"
+      <FolderModal
         openModal={openNewFolderModal}
         handleModalClose={handleNewFolderModalClose}
         newFolderName={newSubfolderName}
@@ -274,6 +321,22 @@ const FolderActionsMenu = ({ folderId, folderName, setFolderName, onFolderConten
         handleCreateFolder={handleCreateSubfolder}
         errorMessage={newFolderErrorMessage}
       />
+      {/* Create Markdown Modal */}
+      <CreateMarkdownModal
+        open={isCreateMarkdownModalOpen}
+        onClose={handleCreateMarkdownModalClose}
+        onCreateFile={handleCreateMarkdownFileFromModal} // ✅ Pass the new API call handler
+      />
+      <Snackbar // ✅ Snackbar for success/error messages
+        open={isSnackbarOpen}
+        autoHideDuration={6000} // Adjust as needed
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} // Position at the bottom center
+      >
+        <AlertSnackbar onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </AlertSnackbar>
+      </Snackbar>
     </div>
   );
 };

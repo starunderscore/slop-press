@@ -17,6 +17,14 @@
 *   **File and Folder Actions:** Users can rename and delete folders and files directly within the application.
 *   **Navigation Breadcrumbs:**  Clear breadcrumbs help users understand their current location within the folder structure.
 *   **Global Loading Indicator:** (Optional - can be implemented for smoother page transitions) Provides visual feedback during navigation.
+*   **AI Prompt Integration:** A "Get AI Prompt" button (lightbulb icon in the TopAppBar) provides users with an AI prompt to guide content generation for Slop Press typing games using AI chat assistants.
+*   **Create Markdown File Feature:** Users can now create new Markdown files directly within Slop Press through the "Folder Actions Menu" in folder views. This feature includes:
+    *   A modal for entering Markdown content.
+    *   Auto-filename generation based on the first H1 header in the content (optional manual filename input).
+    *   Responsive modal design for optimal use in split-screen setups.
+    *   Backend API integration to save created files persistently.
+    *   Success and error feedback using Material UI Snackbars.
+    *   File creation in both folders and the root directory.
 
 ## Technologies Used
 
@@ -68,21 +76,27 @@
     ```
 6.  **Access the application:** Open your browser and navigate to `http://localhost:3000`.
 
-## Possible Future Enhancements (Phase 3 and Beyond)
+## Possible Future Enhancements (Phase 4 and Beyond)
 
 *   **User Authentication and Accounts:** Implement user registration and login to personalize the experience and potentially allow for saving user progress across devices.
 *   **Typing Game Enhancements:**
     *   More game modes and variations (e.g., accuracy tracking, speed metrics, different text display modes).
     *   Progressive difficulty levels.
-    *   Integration with AI content generation for dynamic typing game content.
 *   **Content Library/Marketplace:**  Allow users to share and discover typing game content created by others.
 *   **Visual Design and Styling Polish:** Further refine the visual design and styling for a more professional and branded look.
 *   **Deployment to Production:**  Deploy the application to a hosting platform for wider accessibility.
+*   **Advanced File Management:** Implement features like file editing, moving, and bulk actions within folders.
 
 ## License
 
-[Choose a license - e.g., MIT License, Apache 2.0, or specify "Proprietary" if you don't want to open-source it yet]
+Think of this software as something you're welcome to borrow and use for your personal growth and enjoyment.
+
+Please feel free to use it, learn from it, and even adapt it for your **personal, non-commercial purposes**.
+
+However, in the spirit of friendly sharing and respecting the effort put into creating it, please **do not redistribute it as your own, sell it, or use it for commercial gain.**  It remains my creation.
+
+All rights are reserved by the developer.
 
 ---
 
-**Developed with ❤️ by [Your Name/Organization] and powered by Gemini 🚀**
+**Developed with ❤️ by Michael Hunt (Star Underscore) and powered by Gemini 🚀**
